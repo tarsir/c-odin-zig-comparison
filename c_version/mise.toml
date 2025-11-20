@@ -1,0 +1,7 @@
+[env]
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/your/path/to/raylib/lib"
+C_INCLUDE_PATH="$C_INCLUDE_PATH:/your/path/to/raylib/include"
+
+[tasks.run]
+description = "Run the C version of the example"
+run = "make clean && make && ./main"

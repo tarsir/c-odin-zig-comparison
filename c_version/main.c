@@ -6,8 +6,8 @@
 struct Particle {
   Vector2 pos;
   double timeStarted;
-  // duration in seconds
-  double duration;
+  // time at which the particle will terminate
+  double timeEnd;
   // multiplier of how fast it should progress through the animation
   double speed;
 };
@@ -15,12 +15,12 @@ struct Particle {
 typedef struct Particle Particle;
 
 Particle createNewParticle(Vector2 pos, double speed, double duration) {
-  double currentTime = GetFrameTime();
+  double currentTime = GetTime();
   Particle newParticle;
   newParticle.pos = pos;
   newParticle.timeStarted = currentTime;
   newParticle.speed = speed;
-  newParticle.duration = duration;
+  newParticle.timeEnd = currentTime + duration;
 
   return newParticle;
 }
@@ -39,9 +39,6 @@ void gameLoop(GameData *);
 int main(int argc, char **argv) {
   const int width = 1440, height = 900;
   GameData gamedata;
-  for (int i = 0; i < PARTICLE_COUNT; i++) {
-    printf("%d", gamedata.usedParticles[i]);
-  }
 
   InitWindow(width, height, "C Example");
 
@@ -64,10 +61,9 @@ void drawParticles(GameData *gameData) {
   for (int i = 0; i < PARTICLE_COUNT; i++) {
     if (gameData->usedParticles[i]) {
       Particle particle = gameData->particles[i];
-      TraceLog(LOG_INFO, "drawing particle at %f, %f", particle.pos.x,
-               particle.pos.y);
-      DrawCircle(particle.pos.x, particle.pos.y, 10, RED);
-      TraceLog(LOG_INFO, "drawing particle at %d", i);
+      Color fadedRed = Fade(RED, (particle.timeEnd - GetTime()) /
+                                     (particle.timeEnd - particle.timeStarted));
+      DrawCircle(particle.pos.x, particle.pos.y, 10, fadedRed);
     }
   }
 }
@@ -84,16 +80,32 @@ int nextFreeParticle(GameData *gameData) {
   return retval;
 }
 
+void clearExpiredParticles(GameData *gameData) {
+  for (int i = 0; i < PARTICLE_COUNT; i++) {
+    if (gameData->usedParticles[i]) {
+      Particle particle = gameData->particles[i];
+      if (particle.timeEnd < GetTime()) {
+        TraceLog(LOG_INFO, "clearing particle at %d", i);
+        gameData->usedParticles[i] = false;
+      }
+    }
+  }
+}
+
 void gameLoop(GameData *gameData) {
-  DrawText("Hello there!", 500, 400, 20, BLACK);
+  char *fpsText[20];
+  sprintf(*fpsText, "FPS: %d", GetFPS());
+  DrawText(*fpsText, 500, 400, 20, BLACK);
 
   if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     Vector2 mousePos = GetMousePosition();
-    Particle newParticle = createNewParticle(mousePos, 1, 5000);
+    Particle newParticle = createNewParticle(mousePos, 1, 2);
     int nextFreeParticleIndex = nextFreeParticle(gameData);
     gameData->particles[nextFreeParticleIndex] = newParticle;
     gameData->usedParticles[nextFreeParticleIndex] = true;
   }
+
+  clearExpiredParticles(gameData);
 
   drawParticles(gameData);
 }

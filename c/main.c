@@ -1,5 +1,4 @@
 #include <raylib.h>
-#include <stdio.h>
 
 #define PARTICLE_COUNT 100
 
@@ -8,18 +7,15 @@ struct Particle {
   double timeStarted;
   // time at which the particle will terminate
   double timeEnd;
-  // multiplier of how fast it should progress through the animation
-  double speed;
 };
 
 typedef struct Particle Particle;
 
-Particle createNewParticle(Vector2 pos, double speed, double duration) {
+Particle createNewParticle(Vector2 pos, double duration) {
   double currentTime = GetTime();
   Particle newParticle;
   newParticle.pos = pos;
   newParticle.timeStarted = currentTime;
-  newParticle.speed = speed;
   newParticle.timeEnd = currentTime + duration;
 
   return newParticle;
@@ -30,6 +26,7 @@ struct GameData {
   Particle particles[PARTICLE_COUNT];
   // particle spaces that are currently in use
   _Bool usedParticles[PARTICLE_COUNT];
+  int peakFps;
 };
 
 typedef struct GameData GameData;
@@ -40,9 +37,9 @@ int main(int argc, char **argv) {
   const int width = 1440, height = 900;
   GameData gamedata;
 
-  InitWindow(width, height, "C Example");
+  gamedata.peakFps = 0;
 
-  SetTargetFPS(60);
+  InitWindow(width, height, "C Example");
 
   while (!WindowShouldClose()) {
     BeginDrawing();
@@ -63,7 +60,7 @@ void drawParticles(GameData *gameData) {
       Particle particle = gameData->particles[i];
       Color fadedRed = Fade(RED, (particle.timeEnd - GetTime()) /
                                      (particle.timeEnd - particle.timeStarted));
-      DrawCircle(particle.pos.x, particle.pos.y, 10, fadedRed);
+      DrawCircleV(particle.pos, 10, fadedRed);
     }
   }
 }
@@ -93,16 +90,28 @@ void clearExpiredParticles(GameData *gameData) {
 }
 
 void gameLoop(GameData *gameData) {
-  char *fpsText[20];
-  sprintf(*fpsText, "FPS: %d", GetFPS());
-  DrawText(*fpsText, 500, 400, 20, BLACK);
+  int lastFps = GetFPS();
+  if (GetTime() > 1) {
+    if (lastFps > gameData->peakFps) {
+      gameData->peakFps = lastFps;
+      TraceLog(LOG_INFO, "New peak FPS: %d", lastFps);
+    }
+  }
+  const char *fpsText = 0;
+  const char *peakFpsText = 0;
+  fpsText = TextFormat("FPS: %d", lastFps);
+  peakFpsText = TextFormat("Peak FPS: %d", gameData->peakFps);
+  DrawText(fpsText, 500, 400, 20, BLACK);
+  DrawText(peakFpsText, 500, 440, 20, BLACK);
 
   if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     Vector2 mousePos = GetMousePosition();
-    Particle newParticle = createNewParticle(mousePos, 1, 2);
+    Particle newParticle = createNewParticle(mousePos, 2);
     int nextFreeParticleIndex = nextFreeParticle(gameData);
-    gameData->particles[nextFreeParticleIndex] = newParticle;
-    gameData->usedParticles[nextFreeParticleIndex] = true;
+    if (nextFreeParticleIndex >= 0) {
+      gameData->particles[nextFreeParticleIndex] = newParticle;
+      gameData->usedParticles[nextFreeParticleIndex] = true;
+    }
   }
 
   clearExpiredParticles(gameData);

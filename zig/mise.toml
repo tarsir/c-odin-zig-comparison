@@ -1,0 +1,13 @@
+[tools]
+zig = "0.15.2"
+
+[tasks.run]
+depends = ['clean']
+run = "zig build run"
+
+[tasks.build]
+depends = ['clean']
+run = "zig build"
+
+[tasks.clean]
+run = "rm -r zig-out/"

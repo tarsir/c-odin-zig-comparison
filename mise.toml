@@ -1,0 +1,11 @@
+[tasks.run-c-example]
+dir = "c"
+run = "mise run run"
+
+[tasks.run-odin-example]
+dir = "odin"
+run = "mise run run"
+
+[tasks.run-zig-example]
+dir = "zig"
+run = "mise run run"

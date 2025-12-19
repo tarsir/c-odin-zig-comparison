@@ -10,4 +10,5 @@ For each project, I use the most "simple" solution for the build system. That me
 
 - The C project relies on Raylib headers and libraries being somewhere in your system
 - The Odin project just kinda works since Raylib ships with the language
-- The Zig project TBD
+- The Zig project uses the Zig build system, meaning `build.zig`, and re-uses the raylib headers
+  from the C example

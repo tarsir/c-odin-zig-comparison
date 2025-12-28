@@ -58,3 +58,42 @@ Otherwise, you can run them with commands like:
 # Zig example
 @/zig > zig build run
 ```
+
+# The Comparison
+
+As with any performance benchmarks, take them with a grain of salt. So many things can impact these
+results! And, this example application isn't particularly demanding, so the overhead in each
+language's build systems and toolchains and such are likely more prevalent than they would be in a
+more sophisticated application.
+
+## Hardware/OS
+
+I ran all of these benchmarks on my main gaming desktop:
+
+- AMD Ryzen 9 7900X
+- AMD Radeon 7900 GRE
+- 32GB DDR5 6000
+- Windows using WSL 2 (Ubuntu)
+
+## Configurations
+
+I ran the following configurations with each language:
+
+- C
+  - No optimization flags (implicitly `-O0`)
+  - "Standard" optimization (`-O2`)
+  - "Beyond standard" (`-O3`)
+  - Optimize for size (`-Os`)
+  - Optimize for debug (`-Og`)
+  - Optimize for speed (`-Ofast`)
+- Zig
+  - Debug (default)
+  - Release fast (`--release=fast`)
+  - Release safe (`--release=safe`)
+  - Release small (`--release=small`)
+- Odin
+  - Release (default)
+  - Debug (`-debug -o:none`)
+  - Optimization, size (`-o:size`)
+  - Optimization, speed (`-o:speed`)
+  - Optimization, "aggressive" (`-o:aggressive`)

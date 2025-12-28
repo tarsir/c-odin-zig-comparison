@@ -4,3 +4,10 @@ raylib-5.5_linux_amd64
 c_version/main
 zig/.zig-cache
 zig/zig-out/bin/zig
+odin/odin
+c/main_o2
+c/main_debug
+c/main_fast
+c/main_o0
+c/main_o3
+c/main_size

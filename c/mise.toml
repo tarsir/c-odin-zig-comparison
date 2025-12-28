@@ -5,3 +5,14 @@ C_INCLUDE_PATH="$C_INCLUDE_PATH:/your/path/to/raylib/include"
 [tasks.run]
 description = "Run the C version of the example"
 run = "make clean && make && ./main"
+
+[tasks.run-build-benchmarks]
+description = "Time all the build configurations of interest"
+run = [
+"make clean && time make",
+"make clean && time make build_o0",
+"make clean && time make build_o3",
+"make clean && time make build_o_size",
+"make clean && time make build_o_fast",
+"make clean && time make build_o_debug",
+]

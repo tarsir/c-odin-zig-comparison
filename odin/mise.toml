@@ -2,3 +2,13 @@
 
 [tasks.run]
 run = "odin run ."
+
+[tasks.run-build-benchmarks]
+description = "Time all the build configurations of interest"
+run = [
+  "time -p odin build . -o:none -debug",
+  "time -p odin build . -o:minimal",
+  "time -p odin build . -o:size",
+  "time -p odin build . -o:speed",
+  "time -p odin build . -o:aggressive",
+]
